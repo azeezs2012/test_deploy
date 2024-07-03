@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy WordPress
         run: |
-          ssh bitnami@34.235.20.136 'bash -s' < ~/scripts/deploy_wordpress.sh ${{ github.event.number }}
+          ssh bitnami@34.235.20.136 'bash -s' < /home/bitnami/scripts/deploy_wordpress.sh ${{ github.event.number }}
 
       - name: Comment on PR
         run: |
