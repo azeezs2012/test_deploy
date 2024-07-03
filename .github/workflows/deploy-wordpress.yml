@@ -1,0 +1,28 @@
+name: Deploy WordPress on Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy WordPress
+        run: |
+          ssh bitnami@34.235.20.136 'bash -s' < ./scripts/deploy_wordpress.sh ${{ github.event.number }}
+
+      - name: Comment on PR
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d "{\"body\": \"WordPress instance for this PR is available at http://${{ github.event.number }}.domain.com\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
