@@ -8,3 +8,7 @@ Author:      RapidLoad
 Author URI:  https://rapidload.io/
 */
 
+add_action('init', function(){
+
+});
+
