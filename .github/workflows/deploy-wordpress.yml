@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy
         run: |
-          cd ./hello.sh
+          ~/hello.sh
 
       - name: Comment on PR
         run: |
