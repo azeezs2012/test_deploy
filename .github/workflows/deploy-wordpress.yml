@@ -17,6 +17,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Deploy
+        run: |
+          cd ~/.ssh && echo "test"
+
       - name: Comment on PR
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
