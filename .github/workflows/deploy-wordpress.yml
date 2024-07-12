@@ -20,6 +20,13 @@ jobs:
       - name: Deploy WordPress
         run: ssh bitnami@34.235.20.136 'bash -s' < cd ~ && ./scripts/deploy_wordpress.sh ${{ github.event.number }}
 
+      - name: Deploy WordPress
+        run: |
+          ssh bitnami@34.235.20.136 << 'EOF'
+            cd ~
+            ./scripts/deploy_wordpress.sh ${{ github.event.number }}
+          EOF
+
       - name: Comment on PR
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
