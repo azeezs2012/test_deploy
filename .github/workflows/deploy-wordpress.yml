@@ -17,14 +17,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy WordPress
-        run: |
-          ssh-keyscan -H 54.238.171.108 >> ~/.ssh/known_hosts
-          ssh -o StrictHostKeyChecking=no bitnami@54.238.171.108 << 'EOF'
-            cd ~
-            ./scripts/deploy_wordpress.sh ${{ github.event.number }}
-          EOF
-
       - name: Comment on PR
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
