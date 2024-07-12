@@ -13,20 +13,18 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 34.235.20.136 >> ~/.ssh/known_hosts
-          ssh-add ~/.ssh/id_rsa
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy WordPress
         run: |
+          ssh-keyscan -H 34.235.20.136 >> ~/.ssh/known_hosts
           ssh -o StrictHostKeyChecking=no bitnami@34.235.20.136 << 'EOF'
             cd ~
             ./scripts/deploy_wordpress.sh ${{ github.event.number }}
           EOF
-        shell: bash
+        shell: /usr/bin/bash -e {0}
         env:
           SSH_AUTH_SOCK: /tmp/ssh-XXXXXXBrwoye/agent.1721
           SSH_AGENT_PID: 1722
