@@ -21,7 +21,7 @@ jobs:
         run: |
           ssh-keyscan -H 34.235.20.136 >> ~/.ssh/known_hosts
           ssh -o StrictHostKeyChecking=no bitnami@34.235.20.136 << 'EOF'
-            cd ~
+            sudo cd ~
             ./scripts/deploy_wordpress.sh ${{ github.event.number }}
           EOF
         shell: /usr/bin/bash -e {0}
