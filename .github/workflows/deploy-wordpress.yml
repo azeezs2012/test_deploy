@@ -19,8 +19,8 @@ jobs:
 
       - name: Deploy WordPress
         run: |
-          ssh-keyscan -H 34.235.20.136 >> ~/.ssh/known_hosts
-          ssh -o StrictHostKeyChecking=no bitnami@34.235.20.136 << 'EOF'
+          ssh-keyscan -H 54.238.171.108 >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=no bitnami@54.238.171.108 << 'EOF'
             cd ~
             ./scripts/deploy_wordpress.sh ${{ github.event.number }}
           EOF
