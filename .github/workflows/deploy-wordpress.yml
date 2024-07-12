@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy
         run: |
-          ~/hello.sh
+          /home/bitnami/hello.sh
 
       - name: Comment on PR
         run: |
