@@ -21,7 +21,7 @@ jobs:
 
       - name: Configure SSH Final Step
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'echo SSH successfully configured'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@3.112.14.110 'echo SSH successfully configured'
 
       - name: SSH into Bitnami instance and pull changes
         run: |
