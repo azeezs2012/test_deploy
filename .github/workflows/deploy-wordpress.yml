@@ -20,6 +20,9 @@ jobs:
       - name: Deploy
         run: |
           ls
+      - name: Check Path
+        run: |
+          pwd
 
       - name: Comment on PR
         run: |
