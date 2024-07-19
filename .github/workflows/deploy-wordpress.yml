@@ -25,6 +25,10 @@ jobs:
           echo "INSTANCE_ID=${{ github.event.number }}" >> $GITHUB_ENV
           echo "WORDPRESS_PORT=$((8080 + ${{ github.event.number }}))" >> $GITHUB_ENV
 
+      - name: SSH into Bitnami instance and pull changes
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'pwd'
+
       - name: Copy docker-compose file to server
         run: |
           scp -o StrictHostKeyChecking=no -i /home/bitnami docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:cd /home/bitnami/docker-compose-${{ github.event.number }}.yml
