@@ -38,8 +38,6 @@ jobs:
           #scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa entrypoint.sh bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/entrypoint.sh
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa nginx-template.conf bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/nginx-template.conf
 
-          ls
-
           # Ensure the entrypoint.sh is executable on the remote server
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} "sudo chmod +x /home/bitnami/entrypoint.sh"
 
