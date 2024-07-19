@@ -27,7 +27,7 @@ jobs:
 
       - name: SSH into Bitnami instance and pull changes
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'pwd'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'ls'
 
       - name: Copy docker-compose file to server
         run: |
