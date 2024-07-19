@@ -29,6 +29,22 @@ services:
     networks:
       - wp-network
 
+  nginx:
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx-template.conf:/etc/nginx/nginx-template.conf
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: /entrypoint.sh
+    environment:
+      - TARGET_PORT=${WORDPRESS_PORT}
+      - HOST_PORT=8080
+    depends_on:
+      - wordpress
+    networks:
+      - wp-network
+
 volumes:
   wordpress_data:
   mariadb_data:
