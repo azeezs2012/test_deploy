@@ -18,20 +18,20 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'echo SSH successfully configured'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@3.112.14.110 'echo SSH successfully configured'
 
       - name: Set environment variables
         run: |
           echo "INSTANCE_ID=${{ github.event.number }}" >> $GITHUB_ENV
-          echo "SUBDOMAIN=${{ github.event.number }}.lightsail-ip.com" >> $GITHUB_ENV
+          echo "WORDPRESS_PORT=$((8080 + ${{ github.event.number }}))" >> $GITHUB_ENV
 
       - name: Create dynamic docker-compose file
         run: |
           INSTANCE_ID=${{ github.event.number }}
-          SUBDOMAIN=${{ github.event.number }}.lightsail-ip.com
+          WORDPRESS_PORT=$((8080 + INSTANCE_ID))
           sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose-template.yml > docker-compose.yml
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
-          sed -i "s|http://localhost:8080|http://${SUBDOMAIN}|g" docker-compose.yml
+          sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
 
 
@@ -39,9 +39,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
             INSTANCE_ID=${{ github.event.number }}
-            SUBDOMAIN=${{ github.event.number }}.lightsail-ip.com
+            WORDPRESS_PORT=$((8080 + INSTANCE_ID))
+            export INSTANCE_ID WORDPRESS_PORT
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml down
-            sudo SUBDOMAIN=$SUBDOMAIN INSTANCE_ID=$INSTANCE_ID docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
+            sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
             sleep 30 # wait for the services to start
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml logs wordpress
             #docker cp /home/bitnami/plugin-directory-${INSTANCE_ID} wordpress:/bitnami/wordpress/wp-content/plugins/
@@ -51,5 +52,5 @@ jobs:
       - name: Comment on PR
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.SSH_GITHUB_TOKEN }}" \
-            -d "{\"body\": \"WordPress instance for this PR is available at http://${{ github.event.number }}.domain.com\"}" \
+            -d "{\"body\": \"WordPress instance for this PR is available at http://pr-${{ github.event.number }}.rapidload.io\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
