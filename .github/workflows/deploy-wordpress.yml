@@ -32,6 +32,7 @@ jobs:
       - name: Create dynamic docker-compose file
         run: |
           INSTANCE_ID=${{ github.event.number }}
+          WORDPRESS_PORT=$((8080 + INSTANCE_ID))
           sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose-template.yml > docker-compose.yml
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
