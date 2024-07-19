@@ -8,7 +8,7 @@ services:
     environment:
       - WORDPRESS_DB_HOST=mariadb
       - WORDPRESS_DB_USER=bn_wordpress
-      - WORDPRESS_DB_PASSWORD=bitnami
+      - WORDPRESS_DATABASE_PASSWORD=bitnami
       - WORDPRESS_DB_NAME=bitnami_wordpress
       - WORDPRESS_USERNAME=admin
       - WORDPRESS_PASSWORD=admin_password
