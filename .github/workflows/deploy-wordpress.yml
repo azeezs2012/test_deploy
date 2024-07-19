@@ -34,6 +34,15 @@ jobs:
           sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
 
+          # Copy docker-compose file and necessary files to the remote server
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa Dockerfile.nginx bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/Dockerfile-${INSTANCE_ID}.nginx
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa entrypoint.sh bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/entrypoint-${INSTANCE_ID}.sh
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa nginx-template.conf bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/nginx-template-${INSTANCE_ID}.conf
+
+          # Ensure the entrypoint.sh is executable on the remote server
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} "chmod +x /home/bitnami/entrypoint-${INSTANCE_ID}.sh"
+
 
       - name: Deploy WordPress with Plugin
         run: |
