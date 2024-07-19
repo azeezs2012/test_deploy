@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: bitnami/wordpress:latest
+    ports:
+      - '${WORDPRESS_PORT}:8080'
+    environment:
+      - WORDPRESS_DB_HOST=mariadb
+      - WORDPRESS_DB_USER=bn_wordpress
+      - WORDPRESS_DATABASE_PASSWORD=bitnami
+      - WORDPRESS_DB_NAME=bitnami_wordpress
+      - WORDPRESS_USERNAME=admin
+      - WORDPRESS_PASSWORD=admin_password
+    volumes:
+      - wordpress_data_${INSTANCE_ID}:/bitnami/wordpress
+    networks:
+      - wp-network-${INSTANCE_ID}
+
+  mariadb:
+    image: bitnami/mariadb:latest
+    environment:
+      - MARIADB_ROOT_PASSWORD=bitnami
+      - MARIADB_DATABASE=bitnami_wordpress
+      - MARIADB_USER=bn_wordpress
+      - MARIADB_PASSWORD=bitnami
+    volumes:
+      - mariadb_data_${INSTANCE_ID}:/bitnami/mariadb
+    networks:
+      - wp-network-${INSTANCE_ID}
+
+
+volumes:
+  wordpress_data_${INSTANCE_ID}:
+    driver: local
+  mariadb_data_${INSTANCE_ID}:
+    driver: local
+
+networks:
+  wp-network-${INSTANCE_ID}:
+    driver: bridge

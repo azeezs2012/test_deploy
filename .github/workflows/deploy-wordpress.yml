@@ -29,14 +29,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'ls'
 
-      - name: List files in the current directory
-        run: |
-          cd ~
-          pwd
-
       - name: Copy docker-compose file to server
         run: |
-          cd ~
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${{ github.event.number }}.yml
 
       - name: Deploy WordPress with Plugin
