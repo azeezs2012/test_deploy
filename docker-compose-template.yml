@@ -30,7 +30,9 @@ services:
       - wp-network
 
   nginx:
-    image: nginx:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     ports:
       - '8080:80'
     volumes:
