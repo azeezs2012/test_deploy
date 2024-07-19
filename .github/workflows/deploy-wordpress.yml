@@ -25,7 +25,7 @@ jobs:
           echo "INSTANCE_ID=${{ github.event.number }}" >> $GITHUB_ENV
           echo "SUBDOMAIN=${{ github.event.number }}.lightsail-ip.com" >> $GITHUB_ENV
 
-      name: Create dynamic docker-compose file
+      - name: Create dynamic docker-compose file
         run: |
           INSTANCE_ID=${{ github.event.number }}
           SUBDOMAIN=${{ github.event.number }}.lightsail-ip.com
