@@ -33,7 +33,33 @@ jobs:
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
           sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa entrypoint.sh bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/entrypoint-${INSTANCE_ID}.sh
+          #scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa entrypoint.sh bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/entrypoint-${INSTANCE_ID}.sh
+
+      - name: Create dynamic Nginx config
+        run: |
+          INSTANCE_ID=${{ github.event.number }}
+          WORDPRESS_PORT=$((8080 + INSTANCE_ID))
+          cat <<EOF > nginx-${INSTANCE_ID}.conf
+          events {
+            worker_connections 1024;
+          }
+
+          http {
+            server {
+              listen ${WORDPRESS_PORT};
+              server_name localhost;
+
+              location / {
+                proxy_pass http://wordpress:80;
+                proxy_set_header Host \$host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+            }
+          }
+          EOF
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa nginx-${INSTANCE_ID}.conf bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/nginx-${INSTANCE_ID}.conf
 
       - name: Deploy WordPress with Plugin
         run: |
@@ -45,7 +71,7 @@ jobs:
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
             sleep 30 # wait for the services to start
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml logs wordpress
-            sudo bash /home/bitnami/entrypoint-${INSTANCE_ID}.sh
+            #sudo bash /home/bitnami/entrypoint-${INSTANCE_ID}.sh
             #docker cp /home/bitnami/plugin-directory-${INSTANCE_ID} wordpress:/bitnami/wordpress/wp-content/plugins/
             #docker exec wordpress wp plugin activate plugin-directory --allow-root
           EOF
