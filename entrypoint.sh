@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Define variables
-NGINX_CONF="/etc/nginx/sites-available/pr-1-redirect"
-NGINX_CONF_LINK="/etc/nginx/sites-enabled/pr-1-redirect"
+NGINX_CONF="/opt/bitnami/nginx/conf/vhosts/pr-1-redirect.conf"
 
 # Create the Nginx configuration file
 cat <<EOL > $NGINX_CONF
@@ -16,11 +15,8 @@ server {
 }
 EOL
 
-# Enable the configuration by creating a symbolic link to sites-enabled
-ln -s $NGINX_CONF $NGINX_CONF_LINK
-
 # Test the Nginx configuration
-nginx -t
+sudo /opt/bitnami/nginx/sbin/nginx -t
 
 # Reload Nginx to apply the changes
-systemctl reload nginx
+sudo /opt/bitnami/ctlscript.sh restart nginx
