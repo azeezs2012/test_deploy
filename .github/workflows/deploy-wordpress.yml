@@ -36,6 +36,7 @@ jobs:
           sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose-template.yml > docker-compose.yml
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
           sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
+          sed -i "s/\${INSTANCE_ID}/${INSTANCE_ID}/g" docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
 
       - name: Create dynamic Nginx config
