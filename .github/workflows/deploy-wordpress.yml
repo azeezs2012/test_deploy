@@ -54,7 +54,7 @@ jobs:
               }
           }
           EOF
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa pr-${INSTANCE_ID}.rapidload.live.conf bitnami@${{ secrets.SSH_HOST }}:${CONFIG_FILE_PATH}
+          sudo scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa pr-${INSTANCE_ID}.rapidload.live.conf bitnami@${{ secrets.SSH_HOST }}:${CONFIG_FILE_PATH}
 
       - name: Deploy WordPress with Plugin
         run: |
