@@ -88,7 +88,7 @@ jobs:
 
       - name: Clone WordPress Plugin Repository
         run: |
-          git clone https://github.com/azeezs2012/test_deploy.git ./test_deploy
+          git clone -b ${{ github.head_ref }} --single-branch https://github.com/azeezs2012/test_deploy.git ./test_deploy
 
       - name: Deploy WordPress with Plugin
         run: |
