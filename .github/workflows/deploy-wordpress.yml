@@ -30,16 +30,19 @@ jobs:
           echo "WORDPRESS_PORT=$((3000 + ${{ github.event.number }}))" >> $GITHUB_ENV
 
       - name: Create dynamic docker-compose file
+        if: ${{ github.event.action == 'opened' }}
         run: |
           INSTANCE_ID=${{ github.event.number }}
           WORDPRESS_PORT=$((3000 + INSTANCE_ID))
-          sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose-template.yml > docker-compose.yml
+          sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose.yml > docker-compose.yml
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
           sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
           sed -i "s/\${INSTANCE_ID}/${INSTANCE_ID}/g" docker-compose.yml
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/docker-compose-${INSTANCE_ID}.yml
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'mkdir wp-${INSTANCE_ID}'
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/wp-${INSTANCE_ID}/docker-compose.yml
 
       - name: Create dynamic Nginx config
+        if: ${{ github.event.action == 'opened' }}
         run: |
           INSTANCE_ID=${{ github.event.number }}
           WORDPRESS_PORT=$((3000 + INSTANCE_ID))
@@ -71,6 +74,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} "sudo mv ${REMOTE_CONFIG_FILE_PATH} ${TARGET_CONFIG_FILE_PATH}"
 
       - name: Add DNS A Record to Cloudflare
+        if: ${{ github.event.action == 'opened' }}
         run: |
           CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
           ZONE_ID=${{ secrets.CF_ZONE_ID }}
@@ -111,9 +115,9 @@ jobs:
             #sudo docker volume rm -f $(sudo docker volume ls -q --filter name=wordpress_data_${INSTANCE_ID})
             #sudo docker volume rm -f $(sudo docker volume ls -q --filter name=mariadb_data_${INSTANCE_ID})
 
-            sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
+            sudo docker-compose -f /home/bitnami/wp-${INSTANCE_ID}/docker-compose.yml up -d
             sleep 30 # wait for the services to start
-            sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml logs wordpress
+            sudo docker-compose -f /home/bitnami/wp-${INSTANCE_ID}/docker-compose.yml logs wordpress
           EOF
 
       - name: Restart Nginx
@@ -145,6 +149,7 @@ jobs:
           EOF
 
       - name: Comment on PR
+        if: ${{ github.event.action == 'opened' }}
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.SSH_GITHUB_TOKEN }}" \
             -d "{\"body\": \"WordPress instance for this PR is available at https://pr-${{ github.event.number }}.rapidload.live\"}" \
