@@ -40,7 +40,7 @@ jobs:
           INSTANCE_ID=${{ github.event.number }}
           WORDPRESS_PORT=$((3000 + INSTANCE_ID))
           CONFIG_FILE_PATH="/opt/bitnami/nginx/conf/vhosts/pr-${INSTANCE_ID}.rapidload.live.conf"
-          cat <<EOF > ${CONFIG_FILE_PATH}
+          cat <<EOF > pr-${INSTANCE_ID}.rapidload.live.conf
           server {
               listen 80;
               server_name pr-${INSTANCE_ID}.rapidload.live;
@@ -54,7 +54,7 @@ jobs:
               }
           }
           EOF
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${CONFIG_FILE_PATH} bitnami@${{ secrets.SSH_HOST }}:${CONFIG_FILE_PATH}
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa pr-${INSTANCE_ID}.rapidload.live.conf bitnami@${{ secrets.SSH_HOST }}:${CONFIG_FILE_PATH}
 
       - name: Deploy WordPress with Plugin
         run: |
