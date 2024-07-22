@@ -23,12 +23,12 @@ jobs:
       - name: Set environment variables
         run: |
           echo "INSTANCE_ID=${{ github.event.number }}" >> $GITHUB_ENV
-          echo "WORDPRESS_PORT=$((8080 + ${{ github.event.number }}))" >> $GITHUB_ENV
+          echo "WORDPRESS_PORT=$((3000 + ${{ github.event.number }}))" >> $GITHUB_ENV
 
       - name: Create dynamic docker-compose file
         run: |
           INSTANCE_ID=${{ github.event.number }}
-          WORDPRESS_PORT=$((8080 + INSTANCE_ID))
+          WORDPRESS_PORT=$((3000 + INSTANCE_ID))
           sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose-template.yml > docker-compose.yml
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
           sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
@@ -38,7 +38,7 @@ jobs:
       - name: Create dynamic Nginx config
         run: |
           INSTANCE_ID=${{ github.event.number }}
-          WORDPRESS_PORT=$((8080 + INSTANCE_ID))
+          WORDPRESS_PORT=$((3000 + INSTANCE_ID))
           cat <<EOF > nginx-${INSTANCE_ID}.conf
           events {
             worker_connections 1024;
@@ -65,7 +65,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
             INSTANCE_ID=${{ github.event.number }}
-            WORDPRESS_PORT=$((8080 + INSTANCE_ID))
+            WORDPRESS_PORT=$((3000 + INSTANCE_ID))
             export INSTANCE_ID WORDPRESS_PORT
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml down
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
