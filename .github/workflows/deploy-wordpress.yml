@@ -111,7 +111,7 @@ jobs:
             sudo docker volume rm $(sudo docker volume ls -q --filter name=mariadb_data_${INSTANCE_ID})
 
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
-            sleep 60 # wait for the services to start
+            sleep 30 # wait for the services to start
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml logs wordpress
           EOF
 
@@ -120,7 +120,6 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./test_deploy bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/test_deploy
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
             INSTANCE_ID=${{ github.event.number }}
-            sleep 60 # wait for the services to start
             WP_CONTAINER=$(sudo docker ps -q --filter "name=wordpress_${INSTANCE_ID}")
             echo "Container ID: ${WP_CONTAINER}"
 
@@ -129,11 +128,6 @@ jobs:
             sudo docker ps -a
             echo "List of Docker volumes:"
             sudo docker volume ls
-
-            if [ -z "${WP_CONTAINER}" ]; then
-              echo "No WordPress container found. Exiting."
-              exit 1
-            fi
 
             sudo docker exec -i ${WP_CONTAINER} sh -c "ls /bitnami/wordpress/wp-content/plugins"
             sudo docker cp /home/bitnami/test_deploy ${WP_CONTAINER}:/bitnami/wordpress/wp-content/plugins/test_deploy
