@@ -38,7 +38,7 @@ services:
     depends_on:
       - wordpress
     networks:
-      - app-network
+      - wp-network
 
 volumes:
   wordpress_data:
