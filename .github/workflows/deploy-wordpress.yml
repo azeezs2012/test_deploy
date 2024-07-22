@@ -66,6 +66,23 @@ jobs:
           # Move the config file to the target directory using sudo
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} "sudo mv ${REMOTE_CONFIG_FILE_PATH} ${TARGET_CONFIG_FILE_PATH}"
 
+      - name: Add DNS A Record to Cloudflare
+        run: |
+          CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
+          ZONE_ID=${{ secrets.CF_ZONE_ID }}
+          RECORD_NAME=pr-${{ github.event.number }}
+          RECORD_CONTENT=${{ secrets.SSH_HOST }}
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "type": "A",
+              "name": "'"${RECORD_NAME}"'",
+              "content": "'"${RECORD_CONTENT}"'",
+              "ttl": 1,
+              "proxied": false
+            }'
+
       - name: Deploy WordPress with Plugin
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
