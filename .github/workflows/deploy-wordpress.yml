@@ -125,7 +125,7 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./test_deploy bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/test_deploy
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
             INSTANCE_ID=${{ github.event.number }}
-            WP_CONTAINER=$(sudo docker ps -q --filter "name=bitnami_wordpress_{INSTANCE_ID}")
+            WP_CONTAINER=$(sudo docker ps -q --filter "name=wordpress_{INSTANCE_ID}")
             echo "Container ID: ${WP_CONTAINER}"
 
             # Debugging steps
