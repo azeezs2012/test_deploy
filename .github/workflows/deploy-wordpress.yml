@@ -12,6 +12,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Get the branch name
+        run: |
+          echo "Branch name: ${{ github.head_ref }}"
+
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
@@ -120,6 +124,7 @@ jobs:
             echo "Container ID: ${WP_CONTAINER}"
             sudo docker exec -i ${WP_CONTAINER} sh -c "ls /bitnami/wordpress/wp-content/plugins"
             sudo docker cp /home/bitnami/test_deploy ${WP_CONTAINER}:/bitnami/wordpress/wp-content/plugins/test_deploy
+            sleep 30 # wait for the file copy
             sudo docker exec -i ${WP_CONTAINER} sh -c "ls /bitnami/wordpress/wp-content/plugins"
             sudo docker exec -i ${WP_CONTAINER} sh -c "wp plugin activate test_deploy --allow-root"
           EOF
