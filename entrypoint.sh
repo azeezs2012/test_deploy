@@ -1,10 +1,14 @@
 #!/bin/bash
 
 # Define variables
-NGINX_CONF="/opt/bitnami/nginx/conf/vhosts/pr-1-redirect.conf"
+NGINX_CONF_DIR="/opt/bitnami/nginx/conf/vhosts"
+NGINX_CONF="$NGINX_CONF_DIR/pr-1-redirect.conf"
+
+# Create the Nginx configuration directory if it doesn't exist
+sudo mkdir -p $NGINX_CONF_DIR
 
 # Create the Nginx configuration file
-cat <<EOL > $NGINX_CONF
+cat <<EOL | sudo tee $NGINX_CONF
 server {
     listen 8081;
     server_name localhost;
