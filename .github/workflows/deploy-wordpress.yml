@@ -80,7 +80,7 @@ jobs:
               "name": "'"${RECORD_NAME}"'",
               "content": "'"${RECORD_CONTENT}"'",
               "ttl": 1,
-              "proxied": false
+              "proxied": true
             }'
 
       - name: Deploy WordPress with Plugin
