@@ -71,6 +71,10 @@ jobs:
             #docker exec wordpress wp plugin activate plugin-directory --allow-root
           EOF
 
+      - name: Restart Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} 'sudo /opt/bitnami/ctlscript.sh restart nginx'
+
       - name: Comment on PR
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.SSH_GITHUB_TOKEN }}" \
