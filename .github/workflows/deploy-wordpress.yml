@@ -82,6 +82,10 @@ jobs:
               "proxied": true
             }'
 
+      - name: Clone WordPress Plugin Repository
+        run: |
+          git clone https://github.com/azeezs2012/test_deploy.git ./test_deploy
+
       - name: Deploy WordPress with Plugin
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
@@ -92,19 +96,15 @@ jobs:
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml up -d
             sleep 30 # wait for the services to start
             sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml logs wordpress
+          EOF
 
+      - name: Copy Plugin to Docker Container
+        run: |
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./test_deploy bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/test_deploy
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
+            INSTANCE_ID=${{ github.event.number }}
             WP_CONTAINER=$(sudo docker ps -q --filter "name=wordpress_${INSTANCE_ID}")
-            sudo docker exec -i ${WP_CONTAINER} sh -c "sudo mkdir -p /var/lib/apt/lists/partial && apt-get update && apt-get install -y git"
-
-            # Clone and install WordPress plugin
-            PLUGIN_REPO_URL="https://github.com/azeezs2012/test_deploy.git"
-            sudo docker exec -i ${WP_CONTAINER} sh -c "
-              if [ -d /var/www/html/wp-content/plugins/test_deploy ]; then
-                cd /var/www/html/wp-content/plugins/test_deploy && git pull
-              else
-                git clone ${PLUGIN_REPO_URL} /var/www/html/wp-content/plugins/test_deploy
-              fi
-            "
+            sudo docker cp /home/bitnami/test_deploy ${WP_CONTAINER}:/var/www/html/wp-content/plugins/test_deploy
             sudo docker exec -i ${WP_CONTAINER} sh -c "wp plugin activate test_deploy --allow-root"
           EOF
 
