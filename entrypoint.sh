@@ -19,7 +19,7 @@ cat <<EOL | sudo tee $APACHE_CONF
 EOL
 
 # Test the Apache configuration
-sudo /opt/bitnami/apache2/bin/apachectl -t
+sudo /opt/bitnami/apache2/bin/httpd -t
 
 # Reload Apache to apply the changes
 sudo /opt/bitnami/ctlscript.sh restart apache
