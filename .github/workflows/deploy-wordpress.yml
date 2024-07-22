@@ -96,6 +96,9 @@ jobs:
             #sudo bash /home/bitnami/entrypoint-${INSTANCE_ID}.sh
             #docker cp /home/bitnami/plugin-directory-${INSTANCE_ID} wordpress:/bitnami/wordpress/wp-content/plugins/
             #docker exec wordpress wp plugin activate plugin-directory --allow-root
+            # Ensure WP-CLI is installed and then install and activate the plugin
+            sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml exec wordpress wp --info
+            sudo docker-compose -f /home/bitnami/docker-compose-${INSTANCE_ID}.yml exec wordpress wp plugin install unusedcss --activate --allow-root
           EOF
 
       - name: Restart Nginx
