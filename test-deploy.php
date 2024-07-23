@@ -8,9 +8,11 @@ Author:      RapidLoad
 Author URI:  https://rapidload.io/
 */
 
-add_action('init', function(){
-
+add_action('wp_head', function(){
+    echo "I am in";
 });
+
+
 
 
 
