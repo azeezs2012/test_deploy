@@ -126,7 +126,7 @@ jobs:
 
       - name: Copy Plugin to Docker Container
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./test_deploy bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/test_deploy
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./test_deploy/test_deploy bitnami@${{ secrets.SSH_HOST }}:/home/bitnami/test_deploy
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
             INSTANCE_ID=${{ github.event.number }}
             # Debugging steps
