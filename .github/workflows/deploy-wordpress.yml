@@ -34,7 +34,7 @@ jobs:
         run: |
           INSTANCE_ID=${{ github.event.number }}
           WORDPRESS_PORT=$((3000 + INSTANCE_ID))
-          sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose.yml > docker-compose.yml
+          sed "s/wordpress_data:/wordpress_data_${INSTANCE_ID}:/g" docker-compose-template.yml > docker-compose.yml
           sed -i "s/mariadb_data:/mariadb_data_${INSTANCE_ID}:/g" docker-compose.yml
           sed -i "s/\${WORDPRESS_PORT}/${WORDPRESS_PORT}/g" docker-compose.yml
           sed -i "s/\${INSTANCE_ID}/${INSTANCE_ID}/g" docker-compose.yml
