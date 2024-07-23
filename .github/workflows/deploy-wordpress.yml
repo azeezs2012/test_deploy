@@ -151,8 +151,12 @@ jobs:
       - name: Clean up old Docker containers and volumes
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
-            # Find and remove Docker containers older than 30 days
-            old_containers=$(sudo docker ps -a --filter "status=exited" --filter "status=created" --format "{{.ID}} {{.CreatedAt}}" | awk -v date="$(date -d '30 days ago' '+%Y-%m-%d')" '$2 < date {print $1}')
+            # Remove Docker containers older than 30 days
+            old_containers=$(sudo docker ps -a --filter "status=exited" --format "{{.ID}} {{.CreatedAt}}" | while read id created; do
+              if [[ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]]; then
+                echo $id
+              fi
+            done)
             if [ ! -z "$old_containers" ]; then
               echo "Removing old containers: $old_containers"
               sudo docker rm $old_containers
@@ -160,8 +164,13 @@ jobs:
               echo "No old containers found."
             fi
 
-            # Find and remove Docker volumes older than 30 days
-            old_volumes=$(sudo docker volume ls -q --filter "dangling=true" --format "{{.Name}} {{.CreatedAt}}" | awk -v date="$(date -d '30 days ago' '+%Y-%m-%d')" '$2 < date {print $1}')
+            # Remove dangling Docker volumes older than 30 days
+            old_volumes=$(sudo docker volume ls -q --filter "dangling=true" | while read volume; do
+              created=$(sudo docker volume inspect -f '{{.CreatedAt}}' $volume)
+              if [[ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]]; then
+                echo $volume
+              fi
+            done)
             if [ ! -z "$old_volumes" ]; then
               echo "Removing old volumes: $old_volumes"
               sudo docker volume rm $old_volumes
