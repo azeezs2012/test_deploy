@@ -148,6 +148,29 @@ jobs:
 
           EOF
 
+      - name: Clean up old Docker containers and volumes
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
+            # Find and remove Docker containers older than 30 days
+            old_containers=$(sudo docker ps -a --filter "status=exited" --filter "status=created" --format "{{.ID}} {{.CreatedAt}}" | awk -v date="$(date -d '30 days ago' '+%Y-%m-%d')" '$2 < date {print $1}')
+            if [ ! -z "$old_containers" ]; then
+              echo "Removing old containers: $old_containers"
+              sudo docker rm $old_containers
+            else
+              echo "No old containers found."
+            fi
+
+            # Find and remove Docker volumes older than 30 days
+            old_volumes=$(sudo docker volume ls -q --filter "dangling=true" --format "{{.Name}} {{.CreatedAt}}" | awk -v date="$(date -d '30 days ago' '+%Y-%m-%d')" '$2 < date {print $1}')
+            if [ ! -z "$old_volumes" ]; then
+              echo "Removing old volumes: $old_volumes"
+              sudo docker volume rm $old_volumes
+            else
+              echo "No old volumes found."
+            fi
+          EOF
+
+
       - name: Comment on PR
         if: ${{ github.event.action == 'opened' }}
         run: |
