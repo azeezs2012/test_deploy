@@ -153,7 +153,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
             # Remove Docker containers older than 30 days
             old_containers=$(sudo docker ps -a --filter "status=exited" --format "{{.ID}} {{.CreatedAt}}" | while read id created; do
-              if [[ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]]; then
+              if [ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]; then
                 echo $id
               fi
             done)
@@ -166,8 +166,8 @@ jobs:
 
             # Remove dangling Docker volumes older than 30 days
             old_volumes=$(sudo docker volume ls -q --filter "dangling=true" | while read volume; do
-              created=$(sudo docker volume inspect -f '{{.CreatedAt}}' $volume)
-              if [[ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]]; then
+              created=$(sudo docker volume inspect -f '{{.CreatedAt}}' $volume | head -n 1 | sed 's/\(.*\)+0000 UTC/\1/')
+              if [ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]; then
                 echo $volume
               fi
             done)
