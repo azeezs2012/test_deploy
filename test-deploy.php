@@ -8,8 +8,8 @@ Author:      RapidLoad
 Author URI:  https://rapidload.io/
 */
 
-add_action('init', function(){
-    error_log("updated");
+add_action('body_open', function(){
+    echo "I am in";
 });
 
 
