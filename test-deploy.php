@@ -9,7 +9,7 @@ Author URI:  https://rapidload.io/
 */
 
 add_action('init', function(){
-
+    error_log("updated");
 });
 
 
