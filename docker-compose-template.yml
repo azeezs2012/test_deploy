@@ -13,6 +13,7 @@ services:
       - WORDPRESS_DB_NAME=bitnami_wordpress
       - WORDPRESS_USERNAME=admin
       - WORDPRESS_PASSWORD=admin_password
+      - WORDPRESS_CONFIG_EXTRA="define('DISALLOW_FILE_EDIT', false);"
     volumes:
       - wordpress_data_${INSTANCE_ID}:/bitnami/wordpress
     networks:

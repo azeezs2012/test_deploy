@@ -136,7 +136,7 @@ jobs:
             sudo docker volume ls
             WP_CONTAINER=$(sudo docker ps -q --filter "name=wordpress_${INSTANCE_ID}")
             echo "Container ID: ${WP_CONTAINER}"
-            sudo docker cp /home/bitnami/test_deploy ${WP_CONTAINER}:/bitnami/wordpress/wp-content/plugins/test_deploy
+            sudo docker cp /home/bitnami/test_deploy/test_deploy ${WP_CONTAINER}:/bitnami/wordpress/wp-content/plugins
             if [ $? -eq 0 ]; then
               echo "Plugin test_deploy copied successfully to ${WP_CONTAINER}"
               sudo docker exec -i ${WP_CONTAINER} sh -c "wp plugin activate test_deploy --allow-root"
@@ -147,6 +147,38 @@ jobs:
             sudo docker exec -i ${WP_CONTAINER} sh -c "ls /bitnami/wordpress/wp-content/plugins"
 
           EOF
+
+      - name: Clean up old Docker containers and volumes
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@${{ secrets.SSH_HOST }} << 'EOF'
+            # Remove Docker containers older than 30 days
+            old_containers=$(sudo docker ps -a --filter "status=exited" --format "{{.ID}} {{.CreatedAt}}" | while read id created; do
+              if [ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]; then
+                echo $id
+              fi
+            done)
+            if [ ! -z "$old_containers" ]; then
+              echo "Removing old containers: $old_containers"
+              sudo docker rm $old_containers
+            else
+              echo "No old containers found."
+            fi
+
+            # Remove dangling Docker volumes older than 30 days
+            old_volumes=$(sudo docker volume ls -q --filter "dangling=true" | while read volume; do
+              created=$(sudo docker volume inspect -f '{{.CreatedAt}}' $volume | head -n 1 | sed 's/\(.*\)+0000 UTC/\1/')
+              if [ $(date -d "$created" +%s) -lt $(date -d '30 days ago' +%s) ]; then
+                echo $volume
+              fi
+            done)
+            if [ ! -z "$old_volumes" ]; then
+              echo "Removing old volumes: $old_volumes"
+              sudo docker volume rm $old_volumes
+            else
+              echo "No old volumes found."
+            fi
+          EOF
+
 
       - name: Comment on PR
         if: ${{ github.event.action == 'opened' }}
